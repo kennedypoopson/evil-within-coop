@@ -1,0 +1,56 @@
+=====================================================================
+ EWCOOP - The Evil Within, 2 players (experimental)
+=====================================================================
+
+WHAT THIS IS
+  Each of you plays your own copy of the level. The mod sends your movement
+  to your friend 30 times a second and shows them as a second Sebastian who
+  walks, sprints, sneaks and aims with your real input (smoothed like the
+  Source engine: the other player is shown 0.1 s in the past).
+  NOT shared yet: enemies, doors, items, story. Stay in the same level/area.
+
+EACH PC NEEDS
+  - The Evil Within on Steam (same build: buildid 2708258).
+  - This folder: ewcoop.dll, inject.exe, ewhost.txt.
+  - BOTH PCs must use the SAME ewcoop.dll (the network format changed;
+    an old build is ignored and the log says so).
+  - A way to reach each other: Radmin VPN on the same network (each of you
+    gets a 26.x.x.x address) is the easiest. Or a LAN.
+  - Windows Firewall: allow EvilWithin.exe inbound UDP ports 28000-28009
+    (Radmin's adapter counts as a Public network).
+
+------------------------------------------------------------
+ HOST
+------------------------------------------------------------
+ 1. Start The Evil Within and load your save.
+ 2. Run inject.exe (as Administrator if it fails).
+ 3. Press Ctrl+Shift+K  -> hosting on UDP 28000 (or the next free port up to 28009).
+ 4. Send your friend your 26.x.x.x address (Radmin shows it).
+
+------------------------------------------------------------
+ CLIENT (friend)
+------------------------------------------------------------
+ 1. Start The Evil Within and load a save in the SAME level as the host.
+ 2. Put the host's 26.x.x.x address as the only line in ewhost.txt.
+ 3. Run inject.exe (as Administrator if it fails).
+ 4. Press Ctrl+Shift+O  -> connects to the host.
+ Each of you should now see the other as a second Sebastian.
+
+------------------------------------------------------------
+ KEYS
+------------------------------------------------------------
+   Ctrl+Shift+K   host                 Ctrl+Shift+O   join (ewhost.txt)
+   Ctrl+Shift+U   stop networking      Ctrl+Shift+T   teleport to your friend
+   Ctrl+Shift+E   solo echo test: player 2 copies you (delay + packet loss)
+   Ctrl+Shift+B   solo follow bot      Ctrl+H         debug HUD on/off
+
+------------------------------------------------------------
+ IF IT DOESN'T WORK
+------------------------------------------------------------
+ - Log file: ewcoop_<number>.log in this folder. Every 3 s it prints a
+   "[net]" line: remote=y means packets arrive, recv/lost count them.
+ - remote=n on both sides: packets aren't getting through. Check Radmin
+   (both online, same network), the firewall rule, and the IP in ewhost.txt.
+ - "different ewcoop build" in the log: copy the same ewcoop.dll to both PCs.
+ - Friend appears far away: you're in different areas; use Ctrl+Shift+T.
+=====================================================================

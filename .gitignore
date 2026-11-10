@@ -1,0 +1,8 @@
+build/
+ida/
+local/
+*.log
+*.i64
+*.idb
+decl_*.txt
+ewcoop_loaded_*.dll

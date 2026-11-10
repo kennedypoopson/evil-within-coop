@@ -1,0 +1,5 @@
+# Put the HOST's IP address on the first line that doesn't start with #, then save. Copy this file
+# next to ewcoop.dll / inject.exe. CLIENT only: press Ctrl+Shift+O in-game to connect.
+# Same PC (two game copies): 127.0.0.1 (also the default when this file has no address).
+# Radmin VPN / ZeroTier / LAN: the host's 26.x.x.x / LAN address. The host listens on UDP 28000-28009.
+127.0.0.1
