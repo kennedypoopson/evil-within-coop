@@ -111,5 +111,9 @@ Key findings, in short:
 ## Credits
 
 Reverse engineering and code by kennedypoopson with AI assistants (Claude Code, DeepSeek). Follows the
-[Co-op Anything](https://github.com/cranebeaker/coop-anything) playbook. MIT licensed (see [LICENSE](LICENSE)).
+[Co-op Anything](https://github.com/cranebeaker/coop-anything) playbook.
+
+Copyright (C) 2026 kennedypoopson. Licensed under the **GNU Affero General Public License v3.0** (see
+[LICENSE](LICENSE)): you may use, change and share it, but modified versions you distribute or run for others over
+a network must also be released under the AGPL with their source. (Releases before November 2026 were MIT.)
 The Evil Within is a trademark of ZeniMax / Tango Gameworks; this project is unaffiliated and contains no game data.
