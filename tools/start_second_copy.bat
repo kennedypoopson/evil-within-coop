@@ -9,5 +9,6 @@ set SteamAppId=268050
 set SteamGameId=268050
 set SteamOverlayGameId=268050
 pushd "%GAMEDIR%"
-start "" "%GAMEDIR%\EvilWithin.exe" +com_allowconsole 1 +com_skipIntroVideo 1
+rem r_letterBoxMode 0 + r_forceAspectRatio 0: no black bars (the game defaults to a 2.5:1 letterbox).
+start "" "%GAMEDIR%\EvilWithin.exe" +com_allowconsole 1 +com_skipIntroVideo 1 +r_letterBoxMode 0 +r_forceAspectRatio 0
 popd

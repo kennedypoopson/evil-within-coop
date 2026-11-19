@@ -14,7 +14,7 @@ set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/..")
 
 add_library(ewcoop SHARED src/mod/dllmain.cpp)
 set_target_properties(ewcoop PROPERTIES PREFIX "" RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")
-target_link_libraries(ewcoop PRIVATE iphlpapi ws2_32 dinput8 dxguid)
+target_link_libraries(ewcoop PRIVATE iphlpapi ws2_32 dinput8 dxguid gdiplus)
 
 add_executable(inject src/inject/inject.cpp)
 set_target_properties(inject PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${OUT_DIR}")

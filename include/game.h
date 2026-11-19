@@ -285,6 +285,18 @@ constexpr uintptr_t rva_SetFacing     = 0x851EB0;   // (facing obj, const quat*)
 constexpr int slot_phys_SetAxis = 0x68 / 8;         // (phys, const mat*, int id = -1)
 constexpr int slot_phys_SetOrigin = 0x60 / 8;       // (phys, const Vec3*, int id = -1)
 constexpr uintptr_t rva_SetFacingOrigin = 0x852020; // (facing obj, const Vec3*), Teleport's 2nd call
+constexpr uintptr_t off_motion_origin = 336;        // motion object origin (0x150): sub_84F990 reads it
+constexpr uintptr_t off_motion_facing = 352;        // motion object facing quat (0x160): 0x84F8A0 reads (conjugated)
+constexpr uintptr_t rva_MotionGetOrigin = 0x84F990; // (motion, out Vec3)
+constexpr uintptr_t rva_MotionGetFacing = 0x84F8A0; // (motion, out quat4); returns the conjugate of the stored quat
+constexpr uintptr_t rva_QuatToMat3      = 0xCF47D0; // (quat4, out mat3[9])
+
+// idActor per-frame update (0x91F2C0) runs for every character each frame: it pushes actor+1208 (position)
+// and actor+1220 (orientation quat) into the motion object (+1720) and the actor physics (+696), then calls
+// UpdateVisuals. Hooking it lets the host read each character's rendered pose and the client overwrite it.
+// Prologue is 12 bytes (mov r11,rsp; push rbp/rbx/rsi/r14; lea rbp,[r11-5F]) ending before `sub rsp`.
+constexpr uintptr_t rva_ActorUpdate = 0x91F2C0;
+constexpr uintptr_t off_actor_physics = 696;        // *(actor+696) = actor physics (SetOrigin vtable +0x60, SetAxis +0x68)
 
 // Partner AI actions. ExecuteAction = idPartner01 vtable slot 267 (0xC3CBF0), called by the AI as
 // ExecuteAction(partner, &action, 2, 0); it copies the action into the queue.

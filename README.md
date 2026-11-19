@@ -11,30 +11,52 @@ the DLL checks its vtables and refuses to hook a different build.
 No game files are included or needed beyond your own install. Nothing in the game folder is changed: the mod is
 injected into the running game.
 
-## What works (tested with two game copies on one PC)
+## Status (paused, November 2026)
 
-- **Second player**: a second `idPlayer` spawned next to you (Ctrl+F8), with the engine's one-player limits lifted
-  just for that spawn. Real Sebastian movement, sprint, sneak, aiming, attacks, health and death.
-- **Netcode** (UDP, protocol v3, 30 Hz): position + velocity, camera angles, body facing, full movement input and
-  the equipped weapon. The remote player is shown Source-engine style, 100 ms in the past, interpolated between
-  snapshots (extrapolates up to 250 ms when packets are late). His own movement code runs on the remote input;
-  position is only corrected when it drifts.
-- **Weapons**: the remote player holds what the other side holds (given to him if he doesn't own it).
-- **No friendly fire** between the two players.
-- **Two copies on one PC** for testing: the background copy keeps running (no pause) and ignores your keyboard and
-  mouse.
-- **Enemy damage sync, v1 (first tests)**: hits you land on a character are replayed on the same character (matched
-  by its level name) in the other game, with player 2 as the attacker.
+Protocol **v9**. Most features below were tested with two game copies on one PC; a first two-PC session with a
+friend connected (Steam P2P join worked once, shared death fired), then joining broke after a death. The last
+builds change the Steam join (see "Joining") and are **untested between two PCs**.
 
-## Not done yet
+### What works (two copies on one PC)
 
-- Enemy AI is still simulated separately in each game (enemies can be in different places).
-- Doors, pickups, scripted events, checkpoints and chapter changes are not shared.
-- Damage events are sent three times without acknowledgement; spawned enemies with generated names may not match.
-- Player 2 looks like Sebastian. A Joseph look was started (the game's alternate-body switch attaches Joseph's
-  mesh) but Sebastian's hair, lantern and gun still show.
-- Only hand-tested so far. No automated test suite.
-- There was one unexplained "R6025 pure virtual function call"; a handler now logs the call stack if it recurs.
+- **Second player**: a second `idPlayer` spawned next to you, with the engine's one-player limits lifted just for
+  that spawn. Real Sebastian movement, sprint, sneak, aiming, attacks, health and death.
+- **Netcode** (UDP or Steam P2P, 30 Hz): position + velocity, camera angles and aim pitch, body facing, movement
+  input, equipped weapon, ammo type, lantern (held + lit), health, body mode, sneak state, and the script
+  restrictions on the player (chapter 1 slow walk, no sprint/fire...). Shown Source-style, 100 ms in the past.
+- **Shots**: projectile start + direction of the shooter (bolts land in the same spot).
+- **Hits on players**: replayed on player 2 so stagger/knockdown/wounded play.
+- **Grabs and scripted kills** (`idAnimatedEntity::StartSynchroMotion`): the paired animation is replayed on player 2;
+  the Sadist plays his half (his kill state is driven).
+- **Enemies**: each enemy is run by the game whose player is nearest (host decides, with hysteresis); that game
+  streams its pose and forwards its animation requests/params (`0x7CC920` / `0x7CD8C0`), the other game follows.
+  Corpses are excluded. A dead player's game hands its enemies to the living one.
+- **Pickups**: an item/bolt picked up in one game is removed in the other; key items are given to both players.
+- **Story**: player 2 never fires triggers; a trigger our own player enters is fired for the other game's player
+  (far-behind partner is teleported there first). Scripted player animations (look around, kick a door) are
+  forwarded while the player is under script control.
+- **Death**: one player dying makes the other die too (the game's own "kill" event: full death sequence), so both
+  reload the same checkpoint. Restarts and map loads are crash-safe (all level pointers dropped mid-frame).
+- **Map changes**: `nextmap` (level transitions / chapter ends) is copied to the other game; the host broadcasts its
+  map, the client is warned on mismatch and Ctrl+Shift+M jumps to the host's map/checkpoint. Joining from the
+  main menu loads the host's map with `slowmap`.
+- **Visiting player**: his campaign save is never written while connected; he plays a separate **co-op character**
+  (`ewcoop_character.txt`: inventory + player/weapon upgrade levels), first copied from the host's.
+- **Looks**: Joseph look for the partner (Ctrl+F9) or yourself (Ctrl+Shift+X); a joining player is Joseph by
+  default. Joseph's mesh rides Sebastian's skeleton (Sebastian's animations; Joseph's own animation set is AI-only).
+- **Tools**: Ctrl+Shift+F12 snapshot (screenshots + state of both copies into `snapshots/`), health-drop call chains,
+  hardware watchpoints. `tools/research.py`: offloads IDA questions to a cheap model (DeepSeek via OpenRouter) with
+  read-only IDA tools (`--annotate` lets it name/comment functions in the IDB).
+
+### Not done / known problems
+
+- **Steam joining between two PCs**: Steam's "Join Game" can't be used (the game's leftover multiplayer code
+  handles it and loads the title screen). The client presses Ctrl+Shift+O, which finds the host's lobby through the
+  friends list and connects P2P to the host's Steam ID; the host accepts the first packet. Untested after the fix.
+- Steam rich presence is set but Steam doesn't show it (the game has no rich presence localization).
+- Doors / one-time world state, enemy deaths + burning, traps, weapon effects of player 2, partner HUD, healing
+  the partner with a syringe, safe haven.
+- Only hand-tested. No automated tests.
 
 ## Build
 
@@ -51,9 +73,12 @@ Output: `build\release\ewcoop.dll` and `build\release\inject.exe`.
 
 See [HOW_TO_PLAY.txt](HOW_TO_PLAY.txt). Short version:
 
-1. Start the game from Steam and load a save. Run `inject.exe` (it injects every running copy).
-2. Host: **Ctrl+Shift+K**. Client: put the host's address in `ewhost.txt` next to the DLL, then **Ctrl+Shift+O**.
-3. Solo test of the whole netcode: **Ctrl+Shift+E** (player 2 replays you with delay and packet loss).
+1. Start the game from Steam and load a save. Run `inject.exe` (it injects every running copy). Both players need
+   the same build.
+2. Host: **Ctrl+Shift+K** (UDP + a friends-only Steam lobby). Client: **Ctrl+Shift+O** (joins a Steam friend who
+   hosts; falls back to the address in `ewhost.txt` over UDP/VPN). Do not use Steam's "Join Game".
+3. Ctrl+Shift+U stop, Ctrl+Shift+M go to the host's map, Ctrl+F9 partner as Joseph, Ctrl+Shift+X play as Joseph,
+   Ctrl+Shift+F12 snapshot. Solo netcode test: **Ctrl+Shift+E**.
 
 Two copies on one PC: in the running copy press **Ctrl+Shift+F1** (releases the game's one-instance mutex), then
 run [tools/start_second_copy.bat](tools/start_second_copy.bat), inject, host in one and join in the other.

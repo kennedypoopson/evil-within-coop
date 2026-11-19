@@ -6,3 +6,4 @@ local/
 *.idb
 decl_*.txt
 ewcoop_loaded_*.dll
+__pycache__/

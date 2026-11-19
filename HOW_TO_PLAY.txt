@@ -7,7 +7,8 @@ WHAT THIS IS
   to your friend 30 times a second and shows them as a second Sebastian who
   walks, sprints, sneaks and aims with your real input (smoothed like the
   Source engine: the other player is shown 0.1 s in the past).
-  NOT shared yet: enemies, doors, items, story. Stay in the same level/area.
+  NOT shared yet: doors, items, story. Enemy positions ARE shared now (the
+  host streams them); stay in the same level/area.
 
 EACH PC NEEDS
   - The Evil Within on Steam (same build: buildid 2708258).
@@ -43,6 +44,7 @@ EACH PC NEEDS
    Ctrl+Shift+U   stop networking      Ctrl+Shift+T   teleport to your friend
    Ctrl+Shift+E   solo echo test: player 2 copies you (delay + packet loss)
    Ctrl+Shift+B   solo follow bot      Ctrl+H         debug HUD on/off
+   Ctrl+Shift+Y   shared enemies on/off (positions of nearby characters)
 
 ------------------------------------------------------------
  IF IT DOESN'T WORK
